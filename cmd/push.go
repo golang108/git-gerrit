@@ -210,16 +210,21 @@ func parseDetached(v string, old string, remoteOption RemoteOption) string {
 func push(cmd *cobra.Command, args []string) {
 	remoteOption := getRemote(cmd, args)
 	branchOption := getBranch(cmd, args, remoteOption)
-	s := fmt.Sprintf("git push %s HEAD:refs/for/%s", remoteOption.Name, branchOption.Name)
+	s := fmt.Sprintf("HEAD:refs/for/%s", branchOption.Name)
 	if Draft {
-		s = fmt.Sprintf("git push %s HEAD:refs/drafts/%s", remoteOption.Name, branchOption.Name)
+		s = fmt.Sprintf("HEAD:refs/drafts/%s", branchOption.Name)
 	}
 
-	fmt.Println("will run: ", s, "是否决定执行了？ y/N ?")
+	fmt.Println("will run: git push ", s, "是否决定执行了？ y/N ?")
 	var yes string
 	fmt.Scanln(&yes)
 	if yes == "y" || yes == "Y" {
-		fmt.Println(s)
+		fmt.Println("will run: git push ")
+		output, err := ExecuteCommand("git", "push", remoteOption.Name, s)
+		fmt.Println(output)
+		if err != nil {
+			Error(cmd, args, err)
+		}
 	}
 }
 
