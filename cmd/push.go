@@ -6,35 +6,44 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 
 	"github.com/spf13/cobra"
 )
 
+var Branch string
+
 // pushCmd represents the push command
 var pushCmd = &cobra.Command{
 	Use:   "push",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "push to gerrit",
+	Long:  `push to gerrit`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("push called")
+		push(cmd, args)
 	},
 }
 
+func push(cmd *cobra.Command, args []string) {
+	output, err := ExecuteCommand("git", "remote", "-v")
+	if err != nil {
+		Error(cmd, args, err)
+	}
+	if output == "" {
+		err = errors.New("no remote")
+		Error(cmd, args, err)
+	}
+
+	output, err = ExecuteCommand("git", "branch", "-v")
+	if err != nil {
+		Error(cmd, args, err)
+	}
+
+	fmt.Println("push called", args, Branch, output)
+}
+
 func init() {
+	pushCmd.Flags().StringVarP(&Branch, "Branch", "b", "", "the remote git branch")
+
 	rootCmd.AddCommand(pushCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// pushCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// pushCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
