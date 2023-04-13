@@ -14,6 +14,7 @@ import (
 
 var Branch string
 var Draft bool
+var Bypass bool
 
 // pushCmd represents the push command
 var pushCmd = &cobra.Command{
@@ -214,8 +215,11 @@ func push(cmd *cobra.Command, args []string) {
 	if Draft {
 		s = fmt.Sprintf("HEAD:refs/drafts/%s", branchOption.Name)
 	}
+	if Bypass {
+		s = fmt.Sprintf("HEAD:refs/heads/%s", branchOption.Name)
+	}
 
-	fmt.Println("will run: git push ", s, "是否决定执行了？ y/N ?")
+	fmt.Println("will run: git push", remoteOption.Name, s, "是否决定执行了？ y/N ?")
 	var yes string
 	fmt.Scanln(&yes)
 	if yes == "y" || yes == "Y" {
@@ -231,6 +235,7 @@ func push(cmd *cobra.Command, args []string) {
 func init() {
 	pushCmd.Flags().StringVarP(&Branch, "branch", "b", "", "what remote branch want to push")
 	pushCmd.Flags().BoolVarP(&Draft, "draft", "d", false, "push to gerrit as drafts")
+	pushCmd.Flags().BoolVarP(&Bypass, "bypass", "p", false, "push to gerrit directly")
 
 	rootCmd.AddCommand(pushCmd)
 
