@@ -110,14 +110,22 @@ func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) Bra
 				break
 			}
 		}
+
+		// 单独克隆的: gerrit上克隆的仓库比较特殊，会有一个 HEAD 指向  remotes/origin/HEAD -> origin/master
 		keyword := fmt.Sprintf("remotes/%s/HEAD", remoteOption.Name)
 		if strings.Contains(v, keyword) {
 			words := strings.Fields(v)
+			prefix := fmt.Sprintf("%s/", remoteOption.Name)
+			branch := strings.TrimPrefix(words[len(words)-1], prefix)
 			branch_options = append(branch_options, BranchOption{
-				Name: words[len(words)-1],
+				Name: branch,
 			})
 			break
 		}
+		// 使用repo下载的仓库比较特殊，会有一个  remotes/m/  指向  remotes/m/dev -> origin/dev
+		keyword2 := "remotes/m/"
+		fmt.Println(keyword2)
+
 	}
 	return branch_options[0]
 }
