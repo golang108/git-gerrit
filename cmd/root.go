@@ -25,6 +25,7 @@ var rootCmd = &cobra.Command{
 func Execute() {
 	var defCmd string
 	var cmdFound bool
+	var cmdHelp bool
 	defCmd = "push"
 	cmd := rootCmd.Commands()
 
@@ -36,8 +37,15 @@ func Execute() {
 			}
 		}
 	}
-
-	if !cmdFound {
+	// 这里判断 参数中是否 有help这个子命令, 如果有help 就还需要执行 原生的
+	for _, b := range os.Args[1:] {
+		if "help" == b {
+			cmdHelp = true
+			break
+		}
+	}
+	// 如果参数中没有help，也没有其他 子命令，那么久执行默认的 push 子命令
+	if !cmdFound && !cmdHelp {
 		args := append([]string{defCmd}, os.Args[1:]...)
 		rootCmd.SetArgs(args)
 	}
