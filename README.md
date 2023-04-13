@@ -51,4 +51,22 @@ Use "git-gerrit [command] --help" for more information about a command.
 
 ```
 
+## 作为git子命令来使用
+
+把这个 可执行文件放到环境变量 PATH 路径下面 即可
+
+然后就可以这样执行了
+```
+$ git gerrit -h 
+
+```
+
+
+
+
+
+
+
+
+
 
