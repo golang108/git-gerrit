@@ -109,14 +109,39 @@ func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) Bra
 				})
 				break
 			}
-		}
+			keyword := fmt.Sprintf("%s/", remoteOption.Name)
+			//英文语言下的 括号
+			if len(words) > 2 && strings.Contains(v, keyword) {
+				if strings.Contains(v, "(") && strings.Contains(v, ")") {
+					branch := parseDetached(v, ")", remoteOption)
+					branch_options = append(branch_options, BranchOption{
+						Name: branch,
+					})
+					break
+				}
+				//中文语言下的 括号
+				if len(words) > 2 && strings.Contains(v, "（") && strings.Contains(v, "）") {
+					branch := parseDetached(v, "）", remoteOption)
+					branch_options = append(branch_options, BranchOption{
+						Name: branch,
+					})
+					break
+				}
+			}
 
+		}
+	}
+
+	branch_options_len := len(branch_options)
+	if branch_options_len == 1 {
+		return branch_options[0]
+	}
+
+	for _, v := range branchs {
 		// 单独克隆的: gerrit上克隆的仓库比较特殊，会有一个 HEAD 指向  remotes/origin/HEAD -> origin/master
 		keyword1 := fmt.Sprintf("remotes/%s/HEAD", remoteOption.Name)
 		if strings.Contains(v, keyword1) {
-			words := strings.Fields(v)
-			prefix := fmt.Sprintf("%s/", remoteOption.Name)
-			branch := strings.TrimPrefix(words[len(words)-1], prefix)
+			branch := parseSpecRef(v, remoteOption)
 			branch_options = append(branch_options, BranchOption{
 				Name: branch,
 			})
@@ -125,23 +150,63 @@ func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) Bra
 		// 使用repo下载的仓库比较特殊，会有一个  remotes/m/  指向  remotes/m/dev -> origin/dev
 		keyword2 := "remotes/m/"
 		if strings.Contains(v, keyword2) {
-			words := strings.Fields(v)
-			prefix := fmt.Sprintf("%s/", remoteOption.Name)
-			branch := strings.TrimPrefix(words[len(words)-1], prefix)
+			branch := parseSpecRef(v, remoteOption)
 			branch_options = append(branch_options, BranchOption{
 				Name: branch,
 			})
 			break
 		}
+		keyword3 := fmt.Sprintf("remotes/%s/", remoteOption.Name)
+		if strings.Contains(v, keyword3) {
+			branch := parseSpecRef(v, remoteOption)
+			branch_options = append(branch_options, BranchOption{
+				Name: branch,
+			})
+		}
 	}
-	return branch_options[0]
+
+	branch_options_len = len(branch_options)
+
+	var branchOption BranchOption
+	if branch_options_len > 1 {
+		for i, v := range branch_options {
+			result := fmt.Sprintf("[%d]\t%s", i, v.Name)
+			fmt.Println(result)
+		}
+		fmt.Println("请输入上面数字选择push的远端分支名称：")
+		var index int
+		fmt.Scanln(&index)
+		if index < 0 || index >= branch_options_len {
+			err = errors.New("输入数字非法")
+			Error(cmd, args, err)
+		}
+		branchOption = branch_options[index]
+	} else {
+		branchOption = branch_options[0]
+	}
+	return branchOption
+}
+
+func parseSpecRef(v string, remoteOption RemoteOption) string {
+	words := strings.Fields(v)
+	prefix := fmt.Sprintf("%s/", remoteOption.Name)
+	branch := strings.TrimPrefix(words[len(words)-1], prefix)
+	return branch
+}
+
+func parseDetached(v string, old string, remoteOption RemoteOption) string {
+	words := strings.Fields(v)
+	prefix := fmt.Sprintf("%s/", remoteOption.Name)
+	branch := strings.TrimPrefix(words[len(words)-1], prefix)
+	branch = strings.Replace(branch, old, "", -1)
+	return branch
 }
 
 func push(cmd *cobra.Command, args []string) {
 	remoteOption := getRemote(cmd, args)
 	branchOption := getBranch(cmd, args, remoteOption)
 
-	fmt.Println("push called", branchOption, remoteOption)
+	fmt.Println("push called", branchOption.Name, remoteOption.Name)
 }
 
 func init() {
