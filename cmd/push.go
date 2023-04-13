@@ -159,6 +159,7 @@ func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) Bra
 		keyword3 := fmt.Sprintf("remotes/%s/", remoteOption.Name)
 		if strings.Contains(v, keyword3) {
 			branch := parseSpecRef(v, remoteOption)
+			branch = strings.TrimPrefix(branch, keyword3)
 			branch_options = append(branch_options, BranchOption{
 				Name: branch,
 			})
@@ -181,8 +182,11 @@ func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) Bra
 			Error(cmd, args, err)
 		}
 		branchOption = branch_options[index]
-	} else {
+	} else if branch_options_len == 1 {
 		branchOption = branch_options[0]
+	} else {
+		err = errors.New("没有任何分支名称, 请使用-b选项指定分支名")
+		Error(cmd, args, err)
 	}
 	return branchOption
 }
