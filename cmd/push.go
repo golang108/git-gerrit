@@ -13,6 +13,7 @@ import (
 )
 
 var Branch string
+var Draft bool
 
 // pushCmd represents the push command
 var pushCmd = &cobra.Command{
@@ -209,12 +210,22 @@ func parseDetached(v string, old string, remoteOption RemoteOption) string {
 func push(cmd *cobra.Command, args []string) {
 	remoteOption := getRemote(cmd, args)
 	branchOption := getBranch(cmd, args, remoteOption)
+	s := fmt.Sprintf("git push %s HEAD:refs/for/%s", remoteOption.Name, branchOption.Name)
+	if Draft {
+		s = fmt.Sprintf("git push %s HEAD:refs/drafts/%s", remoteOption.Name, branchOption.Name)
+	}
 
-	fmt.Println("push called", branchOption.Name, remoteOption.Name)
+	fmt.Println("will run: ", s, "是否决定执行了？ y/N ?")
+	var yes string
+	fmt.Scanln(&yes)
+	if yes == "y" || yes == "Y" {
+		fmt.Println(s)
+	}
 }
 
 func init() {
-	pushCmd.Flags().StringVarP(&Branch, "Branch", "b", "", "the remote git branch")
+	pushCmd.Flags().StringVarP(&Branch, "branch", "b", "", "what remote branch want to push")
+	pushCmd.Flags().BoolVarP(&Draft, "draft", "d", false, "push to gerrit as drafts")
 
 	rootCmd.AddCommand(pushCmd)
 
