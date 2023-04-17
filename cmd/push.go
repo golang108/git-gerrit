@@ -181,18 +181,26 @@ func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) Bra
 
 	var branchOption BranchOption
 	if branch_options_len > 1 {
-		for i, v := range branch_options {
-			result := fmt.Sprintf("[%d]\t%s", i, v.Name)
-			fmt.Println(result)
+		templates := &promptui.SelectTemplates{
+			Label:    "{{ . }}?",
+			Active:   "x {{ .Name | red }}",
+			Inactive: "  {{ .Name }}",
+			Selected: "you select this branch: {{ .Name | green }}",
 		}
-		fmt.Println("请输入上面数字选择push的远端分支名称：")
-		var index int
-		fmt.Scanln(&index)
-		if index < 0 || index >= branch_options_len {
-			err = errors.New("输入数字非法")
+
+		prompt := promptui.Select{
+			Label:     "Select Branch",
+			Items:     branch_options,
+			Templates: templates,
+			Size:      branch_options_len,
+			IsVimMode: true,
+		}
+		chooseIndex, _, err := prompt.Run()
+
+		if err != nil {
 			Error(cmd, args, err)
 		}
-		branchOption = branch_options[index]
+		branchOption = branch_options[chooseIndex]
 	} else if branch_options_len == 1 {
 		branchOption = branch_options[0]
 	} else {
