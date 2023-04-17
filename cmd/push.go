@@ -71,7 +71,6 @@ func getRemote(cmd *cobra.Command, args []string) RemoteOption {
 			Items:     remote_options,
 			Templates: templates,
 			Size:      remote_options_len,
-			IsVimMode: true,
 		}
 		chooseIndex, _, err := prompt.Run()
 
@@ -193,7 +192,6 @@ func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) Bra
 			Items:     branch_options,
 			Templates: templates,
 			Size:      branch_options_len,
-			IsVimMode: true,
 		}
 		chooseIndex, _, err := prompt.Run()
 
