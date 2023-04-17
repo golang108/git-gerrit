@@ -6,10 +6,10 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/manifoldco/promptui"
 	"github.com/pkg/errors"
-	"strings"
-
 	"github.com/spf13/cobra"
+	"strings"
 )
 
 var Branch string
@@ -59,18 +59,26 @@ func getRemote(cmd *cobra.Command, args []string) RemoteOption {
 
 	var remoteOption RemoteOption
 	if remote_options_len > 1 {
-		for i, v := range remote_options {
-			result := fmt.Sprintf("[%d]\t%s\t%s", i, v.Name, v.URL)
-			fmt.Println(result)
+		templates := &promptui.SelectTemplates{
+			Label:    "{{ . }}?",
+			Active:   "x {{ .Name | red }}\t({{ .URL | blue }})",
+			Inactive: "  {{ .Name }}\t({{ .URL  }})",
+			Selected: "you select this remote: {{ .Name | green }} ({{ .URL | blue }})",
 		}
-		fmt.Println("请输入上面数字选择push的远端地址：")
-		var index int
-		fmt.Scanln(&index)
-		if index < 0 || index >= remote_options_len {
-			err = errors.New("输入数字非法")
+
+		prompt := promptui.Select{
+			Label:     "Select Remote",
+			Items:     remote_options,
+			Templates: templates,
+			Size:      remote_options_len,
+			IsVimMode: true,
+		}
+		chooseIndex, _, err := prompt.Run()
+
+		if err != nil {
 			Error(cmd, args, err)
 		}
-		remoteOption = remote_options[index]
+		remoteOption = remote_options[chooseIndex]
 	} else {
 		remoteOption = remote_options[0]
 	}
