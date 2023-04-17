@@ -240,9 +240,19 @@ func push(cmd *cobra.Command, args []string) {
 		s = fmt.Sprintf("HEAD:refs/heads/%s", branchOption.Name)
 	}
 
-	fmt.Println("will run: git push", remoteOption.Name, s, "是否决定执行了？ y/N ?")
-	var yes string
-	fmt.Scanln(&yes)
+	prompt := promptui.Prompt{
+		Label:     fmt.Sprintf("%s %s %s %s", "will run: git push", remoteOption.Name, s, "是否决定执行了"),
+		IsConfirm: true,
+	}
+
+	yes, err := prompt.Run()
+
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return
+	}
+	fmt.Printf("You choose %q\n", yes)
+
 	if yes == "y" || yes == "Y" {
 		fmt.Println("will run: git push ")
 		output, err := ExecuteCommand("git", "push", remoteOption.Name, s)
