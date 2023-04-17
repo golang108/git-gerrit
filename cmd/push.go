@@ -78,8 +78,11 @@ func getRemote(cmd *cobra.Command, args []string) RemoteOption {
 			Error(cmd, args, err)
 		}
 		remoteOption = remote_options[chooseIndex]
-	} else {
+	} else if remote_options_len == 1 {
 		remoteOption = remote_options[0]
+	} else {
+		err = errors.New("没有任何 remote 名称, 请使用git remote add 添加")
+		Error(cmd, args, err)
 	}
 	return remoteOption
 }
