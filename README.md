@@ -24,10 +24,11 @@ Usage:
 
 Flags:
   -b, --branch string   what remote branch want to push
-  -p, --bypass          push to gerrit directly
-  -d, --draft           push to gerrit as drafts
+  -D, --draft           push to gerrit as drafts
+  -H, --heads           push to gerrit directly
   -h, --help            help for push
   -t, --topic string    push to gerrit with topic
+
 
 ```
 
