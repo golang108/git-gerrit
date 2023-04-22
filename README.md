@@ -20,6 +20,11 @@ main 是 默认的 git branch， 同样的分支名称也是，有多个会提�
 ? will run: git push origin HEAD:refs/drafts/main 是否决定执行了? [y/N] █
 
 ```
+## 直接推送到heads下
+```
+$ ./git-gerrit -H 
+? will run: git push origin HEAD:refs/heads/main 是否决定执行了? [y/N] █
+```
 
 ## push子命令
 
