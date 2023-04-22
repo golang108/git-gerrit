@@ -1,6 +1,5 @@
 /*
 Copyright © 2023 bright.ma <bright.ma@magesfc.com>
-
 */
 package cmd
 
@@ -14,8 +13,8 @@ import (
 
 var Branch string
 var Topic string
-var Draft bool
-var Bypass bool
+var RefsDraft bool
+var RefsHeads bool
 
 // pushCmd represents the push command
 var pushCmd = &cobra.Command{
@@ -230,13 +229,13 @@ func push(cmd *cobra.Command, args []string) {
 	remoteOption := getRemote(cmd, args)
 	branchOption := getBranch(cmd, args, remoteOption)
 	s := fmt.Sprintf("HEAD:refs/for/%s", branchOption.Name)
-	if Draft {
+	if RefsDraft {
 		s = fmt.Sprintf("HEAD:refs/drafts/%s", branchOption.Name)
 	}
 	if Topic != "" {
 		s = fmt.Sprintf("%s%%topic=%s", s, Topic)
 	}
-	if Bypass {
+	if RefsHeads {
 		s = fmt.Sprintf("HEAD:refs/heads/%s", branchOption.Name)
 	}
 
@@ -266,8 +265,8 @@ func push(cmd *cobra.Command, args []string) {
 func init() {
 	pushCmd.Flags().StringVarP(&Branch, "branch", "b", "", "what remote branch want to push")
 	pushCmd.Flags().StringVarP(&Topic, "topic", "t", "", "push to gerrit with topic")
-	pushCmd.Flags().BoolVarP(&Draft, "draft", "d", false, "push to gerrit as drafts")
-	pushCmd.Flags().BoolVarP(&Bypass, "bypass", "p", false, "push to gerrit directly")
+	pushCmd.Flags().BoolVarP(&RefsDraft, "draft", "D", false, "push to gerrit as drafts")
+	pushCmd.Flags().BoolVarP(&RefsHeads, "heads", "H", false, "push to gerrit directly")
 
 	rootCmd.AddCommand(pushCmd)
 
