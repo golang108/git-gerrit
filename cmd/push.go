@@ -26,6 +26,8 @@ var RemovePrivate bool
 var PublishComments bool
 var NoPublishComments bool
 
+var Edit bool
+
 var RefsHeads bool
 
 // pushCmd represents the push command
@@ -288,6 +290,10 @@ func push(cmd *cobra.Command, args []string) {
 		} else if NoPublishComments {
 			pushArgs = append(pushArgs, "-o", "no-publish-comments")
 		}
+
+		if Edit {
+			pushArgs = append(pushArgs, "-o", "edit")
+		}
 	}
 
 	pushString := strings.Join(pushArgs, " ")
@@ -322,6 +328,8 @@ func init() {
 	pushCmd.Flags().StringVarP(&Label, "label", "l", "", "push to gerrit with Review labels ex: Code-Review+1,l=Verified+1")
 
 	pushCmd.Flags().BoolVarP(&RefsHeads, "heads", "H", false, "push to gerrit refs/heads/ directly")
+
+	pushCmd.Flags().BoolVarP(&Edit, "edit", "E", false, "push to gerrit Change Edits")
 
 	pushCmd.Flags().BoolVarP(&Wip, "wip", "W", false, "push a Work-In-Progress change")
 	pushCmd.Flags().BoolVarP(&Ready, "remove-wip", "", false, "push to remove the wip flag")
