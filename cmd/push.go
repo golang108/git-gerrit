@@ -13,8 +13,8 @@ import (
 
 var Branch string
 var Topic string
-var RefsDraft bool
-var RefsHeads bool
+
+var RefsMap map[string]*bool
 
 // pushCmd represents the push command
 var pushCmd = &cobra.Command{
@@ -228,15 +228,22 @@ func parseDetached(v string, old string, remoteOption RemoteOption) string {
 func push(cmd *cobra.Command, args []string) {
 	remoteOption := getRemote(cmd, args)
 	branchOption := getBranch(cmd, args, remoteOption)
-	s := fmt.Sprintf("HEAD:refs/for/%s", branchOption.Name)
-	if RefsDraft {
-		s = fmt.Sprintf("HEAD:refs/drafts/%s", branchOption.Name)
+
+	countRefs := 0 //用来统计这3个bool选项传入的个数，这3个是互斥的，必须只能设置1个
+	s := fmt.Sprintf("HEAD:refs/%s/%s", "for", branchOption.Name)
+	for k, v := range RefsMap {
+		if *v {
+			countRefs++
+			s = fmt.Sprintf("HEAD:refs/%s/%s", k, branchOption.Name)
+		}
 	}
+	if countRefs > 1 { // 只能是 0个 或者 1个
+		err := errors.New("-D -H -T 只能设置其中一个")
+		Error(cmd, args, err)
+	}
+
 	if Topic != "" {
 		s = fmt.Sprintf("%s%%topic=%s", s, Topic)
-	}
-	if RefsHeads {
-		s = fmt.Sprintf("HEAD:refs/heads/%s", branchOption.Name)
 	}
 
 	prompt := promptui.Prompt{
@@ -262,10 +269,17 @@ func push(cmd *cobra.Command, args []string) {
 }
 
 func init() {
+	RefsMap = make(map[string]*bool, 3)
+	RefsMap["draft"] = new(bool)
+	RefsMap["heads"] = new(bool)
+	RefsMap["tags"] = new(bool)
+
 	pushCmd.Flags().StringVarP(&Branch, "branch", "b", "", "what remote branch want to push")
 	pushCmd.Flags().StringVarP(&Topic, "topic", "t", "", "push to gerrit with topic")
-	pushCmd.Flags().BoolVarP(&RefsDraft, "draft", "D", false, "push to gerrit as drafts")
-	pushCmd.Flags().BoolVarP(&RefsHeads, "heads", "H", false, "push to gerrit directly")
+
+	pushCmd.Flags().BoolVarP(RefsMap["draft"], "draft", "D", false, "push to gerrit refs/drafts/  as drafts")
+	pushCmd.Flags().BoolVarP(RefsMap["heads"], "heads", "H", false, "push to gerrit refs/heads/ directly")
+	pushCmd.Flags().BoolVarP(RefsMap["tags"], "tags", "T", false, "push to gerrit refs/tags/ directly")
 
 	rootCmd.AddCommand(pushCmd)
 
