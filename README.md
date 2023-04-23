@@ -14,12 +14,6 @@ origin 是默认的 git remote， 如果有多个会提示让用户选择的
 
 main 是 默认的 git branch， 同样的分支名称也是，有多个会提示用户去选择的
 
-## 推送成 draft 形式
-```
-./git-gerrit -D 
-? will run: git push origin HEAD:refs/drafts/main 是否决定执行了? [y/N] █
-
-```
 ## 直接推送到heads下
 ```
 $ ./git-gerrit -H 
