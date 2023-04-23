@@ -325,11 +325,11 @@ func init() {
 	pushCmd.Flags().StringVarP(&Topic, "topic", "t", "", "push to gerrit with topic")
 	pushCmd.Flags().StringVarP(&Hashtags, "hashtags", "g", "", "push to gerrit with hashtags")
 	pushCmd.Flags().StringVarP(&Message, "message", "m", "", "push to gerrit with Patch Set Description")
-	pushCmd.Flags().StringVarP(&Label, "label", "l", "", "push to gerrit with Review labels ex: Code-Review+1,l=Verified+1")
+	pushCmd.Flags().StringVarP(&Label, "label", "l", "", "push to gerrit with Review labels \nex: Code-Review+1,l=Verified+1")
 
 	pushCmd.Flags().BoolVarP(&RefsHeads, "heads", "H", false, "push to gerrit refs/heads/ directly")
 
-	pushCmd.Flags().BoolVarP(&Edit, "edit", "E", false, "push to gerrit Change Edits")
+	pushCmd.Flags().BoolVarP(&Edit, "edit", "E", false, "push to gerrit Change Edits, \nedit is not supported for new changes")
 
 	pushCmd.Flags().BoolVarP(&Wip, "wip", "W", false, "push a Work-In-Progress change")
 	pushCmd.Flags().BoolVarP(&Ready, "remove-wip", "", false, "push to remove the wip flag")
