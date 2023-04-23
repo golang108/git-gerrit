@@ -311,10 +311,10 @@ func init() {
 	pushCmd.Flags().BoolVarP(RefsMap["tags"], "tags", "T", false, "push to gerrit refs/tags/ directly")
 
 	pushCmd.Flags().BoolVarP(&Wip, "wip", "W", false, "push a Work-In-Progress change")
-	pushCmd.Flags().BoolVarP(&Ready, "ready", "r", false, "push to remove the wip flag")
+	pushCmd.Flags().BoolVarP(&Ready, "remove-wip", "", false, "push to remove the wip flag")
 
 	pushCmd.Flags().BoolVarP(&Private, "private", "P", false, "push to a private change")
-	pushCmd.Flags().BoolVarP(&RemovePrivate, "remove-private", "R", false, "push to remove the private flag ")
+	pushCmd.Flags().BoolVarP(&RemovePrivate, "remove-private", "", false, "push to remove the private flag ")
 
 	rootCmd.AddCommand(pushCmd)
 
