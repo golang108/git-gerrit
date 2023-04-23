@@ -5,8 +5,8 @@ package cmd
 
 import (
 	"bytes"
+	"fmt"
 	"io"
-	"log"
 	"os"
 	"os/exec"
 
@@ -40,5 +40,6 @@ func CaptureCommand(name string, subname string, args ...string) (string, error)
 }
 
 func Error(cmd *cobra.Command, args []string, err error) {
-	log.Fatalf("execute %s args:%v error:%v\n", cmd.Name(), args, err)
+	fmt.Printf("execute %s args:%v error:%v\n", cmd.Name(), args, err)
+	os.Exit(1)
 }
