@@ -21,7 +21,7 @@ var Ready bool
 var Private bool
 var RemovePrivate bool
 
-var RefsMap map[string]*bool
+var RefsHeads bool
 
 // pushCmd represents the push command
 var pushCmd = &cobra.Command{
@@ -239,37 +239,34 @@ func push(cmd *cobra.Command, args []string) {
 	pushArgs := make([]string, 0)
 	pushArgs = append(pushArgs, remoteOption.Name)
 
-	countRefs := 0 //用来统计这3个bool选项传入的个数，这3个是互斥的，必须只能设置1个
-	refsPattern := fmt.Sprintf("HEAD:refs/%s/%s", "for", branchOption.Name)
-	for k, v := range RefsMap {
-		if *v {
-			countRefs++
-			refsPattern = fmt.Sprintf("HEAD:refs/%s/%s", k, branchOption.Name)
-		}
-	}
-	if countRefs > 1 { // 只能是 0个 或者 1个
-		err := errors.New("-D -H -T 只能设置其中一个")
-		Error(cmd, args, err)
-	}
-	pushArgs = append(pushArgs, refsPattern)
+	if RefsHeads {
+		refsPattern := fmt.Sprintf("HEAD:refs/%s/%s", "heads", branchOption.Name)
+		pushArgs = append(pushArgs, refsPattern)
+	} else {
+		refsPattern := fmt.Sprintf("HEAD:refs/%s/%s", "for", branchOption.Name)
+		pushArgs = append(pushArgs, refsPattern)
 
-	if Topic != "" {
-		s := fmt.Sprintf("topic=%s", Topic)
-		pushArgs = append(pushArgs, "-o", s)
-	}
-	if Hashtags != "" {
-		s := fmt.Sprintf("hashtag=%s", Hashtags)
-		pushArgs = append(pushArgs, "-o", s)
-	}
-	if Private {
-		pushArgs = append(pushArgs, "-o", "private")
-	} else if RemovePrivate {
-		pushArgs = append(pushArgs, "-o", "remove-private")
-	}
-	if Wip {
-		pushArgs = append(pushArgs, "-o", "wip")
-	} else if Ready {
-		pushArgs = append(pushArgs, "-o", "ready")
+		if Topic != "" {
+			s := fmt.Sprintf("topic=%s", Topic)
+			pushArgs = append(pushArgs, "-o", s)
+		}
+
+		if Hashtags != "" {
+			s := fmt.Sprintf("hashtag=%s", Hashtags)
+			pushArgs = append(pushArgs, "-o", s)
+		}
+
+		if Private {
+			pushArgs = append(pushArgs, "-o", "private")
+		} else if RemovePrivate {
+			pushArgs = append(pushArgs, "-o", "remove-private")
+		}
+
+		if Wip {
+			pushArgs = append(pushArgs, "-o", "wip")
+		} else if Ready {
+			pushArgs = append(pushArgs, "-o", "ready")
+		}
 	}
 
 	pushString := strings.Join(pushArgs, " ")
@@ -297,18 +294,11 @@ func push(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	RefsMap = make(map[string]*bool, 3)
-	RefsMap["draft"] = new(bool)
-	RefsMap["heads"] = new(bool)
-	RefsMap["tags"] = new(bool)
-
 	pushCmd.Flags().StringVarP(&Branch, "branch", "b", "", "what remote branch want to push")
 	pushCmd.Flags().StringVarP(&Topic, "topic", "t", "", "push to gerrit with topic")
 	pushCmd.Flags().StringVarP(&Hashtags, "hashtags", "g", "", "push to gerrit with hashtags")
 
-	pushCmd.Flags().BoolVarP(RefsMap["draft"], "draft", "D", false, "push to gerrit refs/drafts/  as drafts")
-	pushCmd.Flags().BoolVarP(RefsMap["heads"], "heads", "H", false, "push to gerrit refs/heads/ directly")
-	pushCmd.Flags().BoolVarP(RefsMap["tags"], "tags", "T", false, "push to gerrit refs/tags/ directly")
+	pushCmd.Flags().BoolVarP(&RefsHeads, "heads", "H", false, "push to gerrit refs/heads/ directly")
 
 	pushCmd.Flags().BoolVarP(&Wip, "wip", "W", false, "push a Work-In-Progress change")
 	pushCmd.Flags().BoolVarP(&Ready, "remove-wip", "", false, "push to remove the wip flag")
