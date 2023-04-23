@@ -37,15 +37,23 @@ Usage:
   git-gerrit push [flags]
 
 Flags:
-  -b, --branch string     what remote branch want to push
-  -g, --hashtags string   push to gerrit with hashtags
-  -t, --topic string      push to gerrit with topic
-  -H, --heads             push to gerrit refs/heads/ directly
-  -P, --private           push to a private change
-      --remove-private    push to remove the private flag 
-  -W, --wip               push a Work-In-Progress change
-      --remove-wip        push to remove the wip flag
-  -h, --help              help for push
+  -b, --branch string         what remote branch want to push
+  -t, --topic string          push to gerrit with topic
+  -g, --hashtags string       push to gerrit with hashtags
+  -m, --message string        push to gerrit with Patch Set Description
+  -l, --label string          push to gerrit with Review labels 
+                              ex: Code-Review+1,l=Verified+1
+  -H, --heads                 push to gerrit refs/heads/ directly
+  -E, --edit                  push to gerrit Change Edits, 
+                              edit is not supported for new changes
+  -C, --publish-comments      push to gerrit with Publish Draft Comments
+      --no-publish-comments   push to gerrit with No Publish Draft Comments
+  -P, --private               push to a private change
+      --remove-private        push to remove the private flag 
+  -W, --wip                   push a Work-In-Progress change
+      --remove-wip            push to remove the wip flag
+  -h, --help                  help for push
+
 
 ```
 
