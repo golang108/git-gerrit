@@ -229,25 +229,32 @@ func push(cmd *cobra.Command, args []string) {
 	remoteOption := getRemote(cmd, args)
 	branchOption := getBranch(cmd, args, remoteOption)
 
+	pushArgs := make([]string, 0)
+	pushArgs = append(pushArgs, remoteOption.Name)
+
 	countRefs := 0 //用来统计这3个bool选项传入的个数，这3个是互斥的，必须只能设置1个
-	s := fmt.Sprintf("HEAD:refs/%s/%s", "for", branchOption.Name)
+	refsPattern := fmt.Sprintf("HEAD:refs/%s/%s", "for", branchOption.Name)
 	for k, v := range RefsMap {
 		if *v {
 			countRefs++
-			s = fmt.Sprintf("HEAD:refs/%s/%s", k, branchOption.Name)
+			refsPattern = fmt.Sprintf("HEAD:refs/%s/%s", k, branchOption.Name)
 		}
 	}
 	if countRefs > 1 { // 只能是 0个 或者 1个
 		err := errors.New("-D -H -T 只能设置其中一个")
 		Error(cmd, args, err)
 	}
+	pushArgs = append(pushArgs, refsPattern)
+
+	pushString := strings.Join(pushArgs, " ")
 
 	if Topic != "" {
-		s = fmt.Sprintf("%s%%topic=%s", s, Topic)
+		s := fmt.Sprintf("topic=%s", Topic)
+		pushArgs = append(pushArgs, "-o", s)
 	}
 
 	prompt := promptui.Prompt{
-		Label:     fmt.Sprintf("%s %s %s %s", "will run: git push", remoteOption.Name, s, "是否决定执行了"),
+		Label:     fmt.Sprintf("%s %s %s", "will run: git push", pushString, "是否决定执行了"),
 		IsConfirm: true,
 	}
 
@@ -259,8 +266,8 @@ func push(cmd *cobra.Command, args []string) {
 	fmt.Printf("You choose %q\n", yes)
 
 	if yes == "y" || yes == "Y" {
-		fmt.Println("will run: git push", remoteOption.Name, s)
-		output, err := CaptureCommand("git", "push", remoteOption.Name, s)
+		fmt.Println("will run: git push", pushString)
+		output, err := CaptureCommand("git", "push", pushArgs...)
 		if err != nil {
 			fmt.Println(output)
 			Error(cmd, args, err)
