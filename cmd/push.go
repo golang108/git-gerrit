@@ -22,6 +22,9 @@ var Ready bool
 var Private bool
 var RemovePrivate bool
 
+var PublishComments bool
+var NoPublishComments bool
+
 var RefsHeads bool
 
 // pushCmd represents the push command
@@ -272,6 +275,12 @@ func push(cmd *cobra.Command, args []string) {
 		} else if Ready {
 			pushArgs = append(pushArgs, "-o", "ready")
 		}
+
+		if PublishComments {
+			pushArgs = append(pushArgs, "-o", "publish-comments")
+		} else if NoPublishComments {
+			pushArgs = append(pushArgs, "-o", "no-publish-comments")
+		}
 	}
 
 	pushString := strings.Join(pushArgs, " ")
@@ -311,6 +320,9 @@ func init() {
 
 	pushCmd.Flags().BoolVarP(&Private, "private", "P", false, "push to a private change")
 	pushCmd.Flags().BoolVarP(&RemovePrivate, "remove-private", "", false, "push to remove the private flag ")
+
+	pushCmd.Flags().BoolVarP(&PublishComments, "publish-comments", "C", false, "push to gerrit with Publish Draft Comments")
+	pushCmd.Flags().BoolVarP(&NoPublishComments, "no-publish-comments", "", false, "push to gerrit with No Publish Draft Comments")
 
 	rootCmd.AddCommand(pushCmd)
 
