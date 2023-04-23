@@ -15,6 +15,7 @@ var Branch string
 var Topic string
 var Hashtags string
 
+var Wip bool
 var Private bool
 var RemovePrivate bool
 
@@ -263,6 +264,10 @@ func push(cmd *cobra.Command, args []string) {
 	} else if RemovePrivate {
 		pushArgs = append(pushArgs, "-o", "remove-private")
 	}
+	if Wip {
+		pushArgs = append(pushArgs, "-o", "wip")
+	}
+
 	pushString := strings.Join(pushArgs, " ")
 
 	prompt := promptui.Prompt{
@@ -301,6 +306,7 @@ func init() {
 	pushCmd.Flags().BoolVarP(RefsMap["heads"], "heads", "H", false, "push to gerrit refs/heads/ directly")
 	pushCmd.Flags().BoolVarP(RefsMap["tags"], "tags", "T", false, "push to gerrit refs/tags/ directly")
 
+	pushCmd.Flags().BoolVarP(&Wip, "wip ", "W", false, "push a Work-In-Progress change")
 	pushCmd.Flags().BoolVarP(&Private, "private ", "P", false, "push to a private change")
 	pushCmd.Flags().BoolVarP(&RemovePrivate, "remove-private ", "R", false, "push to remove the private flag ")
 
