@@ -2,11 +2,11 @@ module github.com/golang108/git-gerrit
 
 go 1.18
 
-require github.com/spf13/cobra v1.7.0
 
 require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/pkg/errors v0.9.1
+	github.com/spf13/cobra v1.7.0
 )
 
 require (
