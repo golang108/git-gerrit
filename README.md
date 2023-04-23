@@ -37,12 +37,15 @@ Usage:
   git-gerrit push [flags]
 
 Flags:
-  -b, --branch string   what remote branch want to push
-  -t, --topic string    push to gerrit with topic
-  -D, --draft           push to gerrit refs/drafts/  as drafts
-  -H, --heads           push to gerrit refs/heads/ directly
-  -T, --tags            push to gerrit refs/tags/ directly
-  -h, --help            help for push
+  -b, --branch string     what remote branch want to push
+  -g, --hashtags string   push to gerrit with hashtags
+  -t, --topic string      push to gerrit with topic
+  -H, --heads             push to gerrit refs/heads/ directly
+  -P, --private           push to a private change
+      --remove-private    push to remove the private flag 
+  -W, --wip               push a Work-In-Progress change
+      --remove-wip        push to remove the wip flag
+  -h, --help              help for push
 
 ```
 
