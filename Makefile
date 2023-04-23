@@ -23,7 +23,23 @@ version:
 .PHONY: build
 build:
 	GOOS=linux GOARCH=amd64 \
-go build -trimpath  -ldflags "$(LDFLAGS)" -o git-gerrit .
+go build -trimpath -ldflags "$(LDFLAGS)" -o git-gerrit .
+	GOOS=windows GOARCH=amd64 \
+go build -trimpath -ldflags "$(LDFLAGS)" -o git-gerrit.exe .
+	GOOS=darwin GOARCH=amd64 \
+go build -trimpath -ldflags "$(LDFLAGS)" -o git-gerrit.mac .
+
+
+
+
+
+
+
+
+
+
+
+
 
 .PHONY: tidy
 tidy:
