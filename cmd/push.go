@@ -14,6 +14,7 @@ import (
 var Branch string
 var Topic string
 var Hashtags string
+var Message string
 
 var Wip bool
 var Ready bool
@@ -255,6 +256,10 @@ func push(cmd *cobra.Command, args []string) {
 			s := fmt.Sprintf("hashtag=%s", Hashtags)
 			pushArgs = append(pushArgs, "-o", s)
 		}
+		if Message != "" {
+			s := fmt.Sprintf("message=%s", Message)
+			pushArgs = append(pushArgs, "-o", s)
+		}
 
 		if Private {
 			pushArgs = append(pushArgs, "-o", "private")
@@ -297,6 +302,7 @@ func init() {
 	pushCmd.Flags().StringVarP(&Branch, "branch", "b", "", "what remote branch want to push")
 	pushCmd.Flags().StringVarP(&Topic, "topic", "t", "", "push to gerrit with topic")
 	pushCmd.Flags().StringVarP(&Hashtags, "hashtags", "g", "", "push to gerrit with hashtags")
+	pushCmd.Flags().StringVarP(&Message, "message", "m", "", "push to gerrit with Patch Set Description")
 
 	pushCmd.Flags().BoolVarP(&RefsHeads, "heads", "H", false, "push to gerrit refs/heads/ directly")
 
