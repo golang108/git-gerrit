@@ -246,12 +246,12 @@ func push(cmd *cobra.Command, args []string) {
 	}
 	pushArgs = append(pushArgs, refsPattern)
 
-	pushString := strings.Join(pushArgs, " ")
-
 	if Topic != "" {
 		s := fmt.Sprintf("topic=%s", Topic)
 		pushArgs = append(pushArgs, "-o", s)
 	}
+
+	pushString := strings.Join(pushArgs, " ")
 
 	prompt := promptui.Prompt{
 		Label:     fmt.Sprintf("%s %s %s", "will run: git push", pushString, "是否决定执行了"),
