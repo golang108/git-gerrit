@@ -38,11 +38,11 @@ Usage:
 
 Flags:
   -b, --branch string   what remote branch want to push
-  -D, --draft           push to gerrit as drafts
-  -H, --heads           push to gerrit directly
-  -h, --help            help for push
   -t, --topic string    push to gerrit with topic
-
+  -D, --draft           push to gerrit refs/drafts/  as drafts
+  -H, --heads           push to gerrit refs/heads/ directly
+  -T, --tags            push to gerrit refs/tags/ directly
+  -h, --help            help for push
 
 ```
 
