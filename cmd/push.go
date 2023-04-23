@@ -13,6 +13,7 @@ import (
 
 var Branch string
 var Topic string
+var Hashtags string
 
 var RefsMap map[string]*bool
 
@@ -250,7 +251,10 @@ func push(cmd *cobra.Command, args []string) {
 		s := fmt.Sprintf("topic=%s", Topic)
 		pushArgs = append(pushArgs, "-o", s)
 	}
-
+	if Hashtags != "" {
+		s := fmt.Sprintf("hashtag=%s", Hashtags)
+		pushArgs = append(pushArgs, "-o", s)
+	}
 	pushString := strings.Join(pushArgs, " ")
 
 	prompt := promptui.Prompt{
@@ -283,6 +287,7 @@ func init() {
 
 	pushCmd.Flags().StringVarP(&Branch, "branch", "b", "", "what remote branch want to push")
 	pushCmd.Flags().StringVarP(&Topic, "topic", "t", "", "push to gerrit with topic")
+	pushCmd.Flags().StringVarP(&Hashtags, "hashtags", "g", "", "push to gerrit with hashtags")
 
 	pushCmd.Flags().BoolVarP(RefsMap["draft"], "draft", "D", false, "push to gerrit refs/drafts/  as drafts")
 	pushCmd.Flags().BoolVarP(RefsMap["heads"], "heads", "H", false, "push to gerrit refs/heads/ directly")
