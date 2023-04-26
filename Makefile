@@ -1,16 +1,12 @@
-tag := $(shell git describe --exact-match --tags 2>/dev/null)
+tag := $(shell git describe --always --all --dirty --broken 2>/dev/null)
 commit := $(shell git rev-parse --short=8 HEAD)
-version:=1.0.0
+version:=$(shell git rev-list --count HEAD)
 
 INTERNAL_PKG=github.com/golang108/git-gerrit/cmd
 
 LDFLAGS := $(LDFLAGS) -X $(INTERNAL_PKG).Commit=$(commit)
+LDFLAGS += -X $(INTERNAL_PKG).Version=$(version)-$(tag)
 
-ifneq ($(tag),)
-	LDFLAGS += -X $(INTERNAL_PKG).Version=$(version)
-else
-	LDFLAGS += -X $(INTERNAL_PKG).Version=$(version)-$(commit)
-endif
 
 all: tidy build
 
