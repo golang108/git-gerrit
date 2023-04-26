@@ -298,8 +298,9 @@ func push(cmd *cobra.Command, args []string) {
 
 	pushString := strings.Join(pushArgs, " ")
 
+	label := fmt.Sprintf("%s %s %s", "will run: git push", pushString, "是否决定执行了")
 	prompt := promptui.Prompt{
-		Label:     fmt.Sprintf("%s %s %s", "will run: git push", pushString, "是否决定执行了"),
+		Label:     label,
 		IsConfirm: true,
 	}
 
