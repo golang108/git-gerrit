@@ -315,10 +315,14 @@ func push(cmd *cobra.Command, args []string) {
 		fmt.Println("will run: git push", pushString)
 		output, err := CaptureCommand("git", "push", pushArgs...)
 		if err != nil {
-			fmt.Println(output)
+			ParseOutput(output)
 			Error(cmd, args, err)
 		}
 	}
+}
+
+func ParseOutput(output string) {
+	//todo
 }
 
 func init() {
