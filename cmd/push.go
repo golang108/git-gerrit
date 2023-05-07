@@ -105,6 +105,7 @@ type BranchOption struct {
 }
 
 func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) BranchOption {
+	// 分支查找顺序，第一是 本地分支名。第二个是 HEAD指向的，或者 /m/ 指向的。第三是其他remote匹配的分支名
 	if Branch != "" {
 		branchOption := BranchOption{
 			Name: Branch,
@@ -171,7 +172,6 @@ func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) Bra
 			branch_options = append(branch_options, BranchOption{
 				Name: branch,
 			})
-			break
 		}
 		// 使用repo下载的仓库比较特殊，会有一个  remotes/m/  指向  remotes/m/dev -> origin/dev
 		keyword2 := "remotes/m/"
@@ -180,8 +180,9 @@ func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) Bra
 			branch_options = append(branch_options, BranchOption{
 				Name: branch,
 			})
-			break
 		}
+	}
+	for _, v := range branchs {
 		keyword3 := fmt.Sprintf("remotes/%s/", remoteOption.Name)
 		if strings.Contains(v, keyword3) {
 			branch := parseSpecRef(v, remoteOption)
