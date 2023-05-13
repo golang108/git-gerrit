@@ -122,8 +122,118 @@ func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) Bra
 	}
 	//解析所有的 branch，然后保存成 BranchOption 切片
 	branchs := strings.Split(output, "\n")
-	branch_options := make([]BranchOption, 0, len(branchs))
 
+	// 本地 新建的分支 解析出来的,如果解析出来的有一个值那么就优先使用这个，然后直接就是 返回了
+	local_branch_options := getLocalBranchs(branchs, remoteOption)
+	if len(local_branch_options) == 1 {
+		return local_branch_options[0]
+	}
+
+	// 2个特殊分支解析出来的 这种 特殊的分支名称，只可能有 1个
+	special_branch_options := getSpecialBranchs(branchs, remoteOption)
+	// 所有 remotes 解析出来的分支 名称
+	remtoes_branch_options := getRemotesBranchs(branchs, remoteOption)
+	remtoes_branch_options = removeSpecialBranchs(remtoes_branch_options, special_branch_options)
+
+	branch_options := make([]BranchOption, 0, len(branchs))
+	branch_options = append(branch_options, special_branch_options...)
+	branch_options = append(branch_options, remtoes_branch_options...)
+
+	branch_options_len := len(branch_options)
+
+	var branchOption BranchOption
+	if branch_options_len > 1 {
+		templates := &promptui.SelectTemplates{
+			Label:    "{{ . }}?",
+			Active:   "x {{ .Name | red }}",
+			Inactive: "  {{ .Name }}",
+			Selected: "you select this branch: {{ .Name | green }}",
+		}
+
+		prompt := promptui.Select{
+			Label:     "Select Branch",
+			Items:     branch_options,
+			Templates: templates,
+			Size:      branch_options_len,
+		}
+		chooseIndex, _, err := prompt.Run()
+
+		if err != nil {
+			Error(cmd, args, err)
+		}
+		branchOption = branch_options[chooseIndex]
+	} else if branch_options_len == 1 {
+		branchOption = branch_options[0]
+	} else {
+		err = errors.New("没有任何分支名称, 请使用-b选项指定分支名")
+		Error(cmd, args, err)
+	}
+	return branchOption
+}
+
+func getSpecialBranchs(branchs []string, remoteOption RemoteOption) []BranchOption {
+	// 2个特殊分支解析出来的
+	branch_options := make([]BranchOption, 0, len(branchs))
+	for _, v := range branchs {
+		// 单独克隆的: gerrit上克隆的仓库比较特殊，会有一个 HEAD 指向  remotes/origin/HEAD -> origin/master
+		keyword1 := fmt.Sprintf("remotes/%s/HEAD", remoteOption.Name)
+		if strings.Contains(v, keyword1) {
+			branch := parseSpecRef(v, remoteOption)
+			branch_options = append(branch_options, BranchOption{
+				Name: branch,
+			})
+		}
+		// 使用repo下载的仓库比较特殊，会有一个  remotes/m/  指向  remotes/m/dev -> origin/dev
+		keyword2 := "remotes/m/"
+		if strings.Contains(v, keyword2) {
+			branch := parseSpecRef(v, remoteOption)
+			branch_options = append(branch_options, BranchOption{
+				Name: branch,
+			})
+		}
+	}
+	return branch_options
+}
+
+func removeSpecialBranchs(firstS, secondS []BranchOption) []BranchOption {
+	// 遍历第一个切片，删除 存在于第二个切片中的元素
+	branch_options := make([]BranchOption, 0, len(firstS))
+	for _, v := range firstS {
+		if !inSlice(secondS, v) {
+			branch_options = append(branch_options, v)
+		}
+	}
+	return branch_options
+}
+
+func inSlice(items []BranchOption, e BranchOption) bool {
+	for _, v := range items {
+		if v.Name == e.Name {
+			return true
+		}
+	}
+	return false
+}
+
+func getRemotesBranchs(branchs []string, remoteOption RemoteOption) []BranchOption {
+	// 所有 remotes 解析出来的分支 名称
+	branch_options := make([]BranchOption, 0, len(branchs))
+	for _, v := range branchs {
+		keyword3 := fmt.Sprintf("remotes/%s/", remoteOption.Name)
+		if strings.Contains(v, keyword3) {
+			branch := parseSpecRef(v, remoteOption)
+			branch = strings.TrimPrefix(branch, keyword3)
+			branch_options = append(branch_options, BranchOption{
+				Name: branch,
+			})
+		}
+	}
+	return branch_options
+}
+
+func getLocalBranchs(branchs []string, remoteOption RemoteOption) []BranchOption {
+	// 本地 新建的分支 解析出来的
+	branch_options := make([]BranchOption, 0, len(branchs))
 	for _, v := range branchs {
 		if v == "" {
 			continue
@@ -158,71 +268,7 @@ func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) Bra
 
 		}
 	}
-
-	branch_options_len := len(branch_options)
-	if branch_options_len == 1 {
-		return branch_options[0]
-	}
-
-	for _, v := range branchs {
-		// 单独克隆的: gerrit上克隆的仓库比较特殊，会有一个 HEAD 指向  remotes/origin/HEAD -> origin/master
-		keyword1 := fmt.Sprintf("remotes/%s/HEAD", remoteOption.Name)
-		if strings.Contains(v, keyword1) {
-			branch := parseSpecRef(v, remoteOption)
-			branch_options = append(branch_options, BranchOption{
-				Name: branch,
-			})
-		}
-		// 使用repo下载的仓库比较特殊，会有一个  remotes/m/  指向  remotes/m/dev -> origin/dev
-		keyword2 := "remotes/m/"
-		if strings.Contains(v, keyword2) {
-			branch := parseSpecRef(v, remoteOption)
-			branch_options = append(branch_options, BranchOption{
-				Name: branch,
-			})
-		}
-	}
-	for _, v := range branchs {
-		keyword3 := fmt.Sprintf("remotes/%s/", remoteOption.Name)
-		if strings.Contains(v, keyword3) {
-			branch := parseSpecRef(v, remoteOption)
-			branch = strings.TrimPrefix(branch, keyword3)
-			branch_options = append(branch_options, BranchOption{
-				Name: branch,
-			})
-		}
-	}
-
-	branch_options_len = len(branch_options)
-
-	var branchOption BranchOption
-	if branch_options_len > 1 {
-		templates := &promptui.SelectTemplates{
-			Label:    "{{ . }}?",
-			Active:   "x {{ .Name | red }}",
-			Inactive: "  {{ .Name }}",
-			Selected: "you select this branch: {{ .Name | green }}",
-		}
-
-		prompt := promptui.Select{
-			Label:     "Select Branch",
-			Items:     branch_options,
-			Templates: templates,
-			Size:      branch_options_len,
-		}
-		chooseIndex, _, err := prompt.Run()
-
-		if err != nil {
-			Error(cmd, args, err)
-		}
-		branchOption = branch_options[chooseIndex]
-	} else if branch_options_len == 1 {
-		branchOption = branch_options[0]
-	} else {
-		err = errors.New("没有任何分支名称, 请使用-b选项指定分支名")
-		Error(cmd, args, err)
-	}
-	return branchOption
+	return branch_options
 }
 
 func parseSpecRef(v string, remoteOption RemoteOption) string {
