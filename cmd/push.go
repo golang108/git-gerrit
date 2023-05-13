@@ -102,6 +102,7 @@ func getRemote(cmd *cobra.Command, args []string) RemoteOption {
 
 type BranchOption struct {
 	Name string
+	Desc string
 }
 
 func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) BranchOption {
@@ -145,8 +146,8 @@ func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) Bra
 	if branch_options_len > 1 {
 		templates := &promptui.SelectTemplates{
 			Label:    "{{ . }}?",
-			Active:   "x {{ .Name | red }}",
-			Inactive: "  {{ .Name }}",
+			Active:   "x {{ .Name | red }} {{ .Desc | red }}",
+			Inactive: "  {{ .Name }} {{ .Desc }}",
 			Selected: "you select this branch: {{ .Name | green }}",
 		}
 
@@ -181,6 +182,7 @@ func getSpecialBranchs(branchs []string, remoteOption RemoteOption) []BranchOpti
 			branch := parseSpecRef(v, remoteOption)
 			branch_options = append(branch_options, BranchOption{
 				Name: branch,
+				Desc: v,
 			})
 		}
 		// 使用repo下载的仓库比较特殊，会有一个  remotes/m/  指向  remotes/m/dev -> origin/dev
@@ -189,6 +191,7 @@ func getSpecialBranchs(branchs []string, remoteOption RemoteOption) []BranchOpti
 			branch := parseSpecRef(v, remoteOption)
 			branch_options = append(branch_options, BranchOption{
 				Name: branch,
+				Desc: v,
 			})
 		}
 	}
@@ -225,6 +228,7 @@ func getRemotesBranchs(branchs []string, remoteOption RemoteOption) []BranchOpti
 			branch = strings.TrimPrefix(branch, keyword3)
 			branch_options = append(branch_options, BranchOption{
 				Name: branch,
+				Desc: v,
 			})
 		}
 	}
