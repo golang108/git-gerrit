@@ -17,6 +17,7 @@ var Hashtags string
 var Message string
 var Label string
 var Reviewer string
+var Carbon string
 
 var Wip bool
 var Ready bool
@@ -348,6 +349,11 @@ func push(cmd *cobra.Command, args []string) {
 			pushArgs = append(pushArgs, "-o", s)
 		}
 
+		if Carbon != "" {
+			s := fmt.Sprintf("cc=%s", Carbon)
+			pushArgs = append(pushArgs, "-o", s)
+		}
+
 		// 把 -o 选项 放到 push 后面
 		refsPattern := fmt.Sprintf("HEAD:refs/%s/%s", "for", branchOption.Name)
 		pushArgs = append(pushArgs, remoteOption.Name, refsPattern)
@@ -390,6 +396,7 @@ func init() {
 	pushCmd.Flags().StringVarP(&Message, "message", "m", "", "push to gerrit with Patch Set Description")
 	pushCmd.Flags().StringVarP(&Label, "label", "l", "", "push to gerrit with Review labels \nex: Code-Review+1,l=Verified+1")
 	pushCmd.Flags().StringVarP(&Reviewer, "reviewer", "r", "", "push to gerrit with reviewer")
+	pushCmd.Flags().StringVarP(&Carbon, "carbon ", "c", "", "push to gerrit with cc")
 
 	pushCmd.Flags().BoolVarP(&RefsHeads, "heads", "H", false, "push to gerrit refs/heads/ directly")
 
