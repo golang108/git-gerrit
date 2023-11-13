@@ -402,13 +402,13 @@ func init() {
 
 	pushCmd.Flags().BoolVarP(&Edit, "edit", "E", false, "push to gerrit Change Edits, \nedit is not supported for new changes")
 
-	pushCmd.Flags().BoolVarP(&Wip, "wip", "W", false, "push a Work-In-Progress change")
-	pushCmd.Flags().BoolVarP(&Ready, "remove-wip", "", false, "push to remove the wip flag")
+	pushCmd.Flags().BoolVarP(&Wip, "wip", "w", false, "push a Work-In-Progress change")
+	pushCmd.Flags().BoolVarP(&Ready, "remove-wip", "W", false, "push to remove the wip flag")
 
-	pushCmd.Flags().BoolVarP(&Private, "private", "P", false, "push to a private change")
-	pushCmd.Flags().BoolVarP(&RemovePrivate, "remove-private", "", false, "push to remove the private flag ")
+	pushCmd.Flags().BoolVarP(&Private, "private", "p", false, "push to a private change")
+	pushCmd.Flags().BoolVarP(&RemovePrivate, "remove-private", "P", false, "push to remove the private flag ")
 
-	pushCmd.Flags().BoolVarP(&PublishComments, "publish-comments", "C", false, "push to gerrit with Publish Draft Comments")
+	pushCmd.Flags().BoolVarP(&PublishComments, "publish-comments", "", false, "push to gerrit with Publish Draft Comments")
 	pushCmd.Flags().BoolVarP(&NoPublishComments, "no-publish-comments", "", false, "push to gerrit with No Publish Draft Comments")
 
 	rootCmd.AddCommand(pushCmd)
