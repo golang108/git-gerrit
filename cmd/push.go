@@ -296,15 +296,11 @@ func push(cmd *cobra.Command, args []string) {
 	branchOption := getBranch(cmd, args, remoteOption)
 
 	pushArgs := make([]string, 0)
-	pushArgs = append(pushArgs, remoteOption.Name)
 
 	if RefsHeads {
 		refsPattern := fmt.Sprintf("HEAD:refs/%s/%s", "heads", branchOption.Name)
-		pushArgs = append(pushArgs, refsPattern)
+		pushArgs = append(pushArgs, remoteOption.Name, refsPattern)
 	} else {
-		refsPattern := fmt.Sprintf("HEAD:refs/%s/%s", "for", branchOption.Name)
-		pushArgs = append(pushArgs, refsPattern)
-
 		if Topic != "" {
 			s := fmt.Sprintf("topic=%s", Topic)
 			pushArgs = append(pushArgs, "-o", s)
@@ -351,7 +347,12 @@ func push(cmd *cobra.Command, args []string) {
 			s := fmt.Sprintf("r=%s", Reviewer)
 			pushArgs = append(pushArgs, "-o", s)
 		}
-	}
+
+		// 把 -o 选项 放到 push 后面
+		refsPattern := fmt.Sprintf("HEAD:refs/%s/%s", "for", branchOption.Name)
+		pushArgs = append(pushArgs, remoteOption.Name, refsPattern)
+
+	} // end if else
 
 	pushString := strings.Join(pushArgs, " ")
 
