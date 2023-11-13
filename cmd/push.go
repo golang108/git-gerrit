@@ -16,6 +16,7 @@ var Topic string
 var Hashtags string
 var Message string
 var Label string
+var Reviewer string
 
 var Wip bool
 var Ready bool
@@ -345,6 +346,11 @@ func push(cmd *cobra.Command, args []string) {
 		if Edit {
 			pushArgs = append(pushArgs, "-o", "edit")
 		}
+
+		if Reviewer != "" {
+			s := fmt.Sprintf("r=%s", Reviewer)
+			pushArgs = append(pushArgs, "-o", s)
+		}
 	}
 
 	pushString := strings.Join(pushArgs, " ")
@@ -382,6 +388,7 @@ func init() {
 	pushCmd.Flags().StringVarP(&Hashtags, "hashtags", "g", "", "push to gerrit with hashtags")
 	pushCmd.Flags().StringVarP(&Message, "message", "m", "", "push to gerrit with Patch Set Description")
 	pushCmd.Flags().StringVarP(&Label, "label", "l", "", "push to gerrit with Review labels \nex: Code-Review+1,l=Verified+1")
+	pushCmd.Flags().StringVarP(&Reviewer, "reviewer", "r", "", "push to gerrit with reviewer")
 
 	pushCmd.Flags().BoolVarP(&RefsHeads, "heads", "H", false, "push to gerrit refs/heads/ directly")
 
