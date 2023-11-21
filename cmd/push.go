@@ -298,10 +298,11 @@ func push(cmd *cobra.Command, args []string) {
 	branchOption := getBranch(cmd, args, remoteOption)
 
 	pushArgs := make([]string, 0)
-
+	pushString := "" // 打印提示的 push 命令，不带 -o 这些选项的，但是选项命令会比较长
 	if RefsHeads {
 		refsPattern := fmt.Sprintf("HEAD:refs/%s/%s", "heads", branchOption.Name)
 		pushArgs = append(pushArgs, remoteOption.Name, refsPattern)
+		pushString = fmt.Sprintf("%s %s", remoteOption.Name, refsPattern)
 	} else {
 		if Topic != "" {
 			s := fmt.Sprintf("topic=%s", Topic)
@@ -374,10 +375,8 @@ func push(cmd *cobra.Command, args []string) {
 		// 把 -o 选项 放到 push 后面
 		refsPattern := fmt.Sprintf("HEAD:refs/%s/%s", "for", branchOption.Name)
 		pushArgs = append(pushArgs, remoteOption.Name, refsPattern)
-
+		pushString = fmt.Sprintf("%s %s", remoteOption.Name, refsPattern)
 	} // end if else
-
-	pushString := strings.Join(pushArgs, " ")
 
 	label := fmt.Sprintf("%s %s %s", "will run: git push", pushString, "是否决定执行了")
 	prompt := promptui.Prompt{
