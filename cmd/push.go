@@ -5,10 +5,11 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/manifoldco/promptui"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"strings"
 )
 
 var Branch string
@@ -345,13 +346,29 @@ func push(cmd *cobra.Command, args []string) {
 		}
 
 		if Reviewer != "" {
-			s := fmt.Sprintf("r=%s", Reviewer)
-			pushArgs = append(pushArgs, "-o", s)
+			if strings.Contains(Reviewer, ",") {
+				reviewers := strings.Split(Reviewer, ",") // 按照逗号分割多个 审批人
+				for _, v := range reviewers {
+					s := fmt.Sprintf("r=%s", v)
+					pushArgs = append(pushArgs, "-o", s) // 循环的把它追加到命令参数里面
+				}
+			} else {
+				s := fmt.Sprintf("r=%s", Reviewer)
+				pushArgs = append(pushArgs, "-o", s)
+			}
 		}
 
 		if Carbon != "" {
-			s := fmt.Sprintf("cc=%s", Carbon)
-			pushArgs = append(pushArgs, "-o", s)
+			if strings.Contains(Carbon, ",") {
+				copies := strings.Split(Carbon, ",") // 按照逗号分割多个 抄送人
+				for _, v := range copies {
+					s := fmt.Sprintf("cc=%s", v)
+					pushArgs = append(pushArgs, "-o", s) // 循环的把它追加到命令参数里面
+				}
+			} else {
+				s := fmt.Sprintf("cc=%s", Carbon)
+				pushArgs = append(pushArgs, "-o", s)
+			}
 		}
 
 		// 把 -o 选项 放到 push 后面
@@ -395,8 +412,8 @@ func init() {
 	pushCmd.Flags().StringVarP(&Hashtags, "hashtags", "g", "", "push to gerrit with hashtags")
 	pushCmd.Flags().StringVarP(&Message, "message", "m", "", "push to gerrit with Patch Set Description")
 	pushCmd.Flags().StringVarP(&Label, "label", "l", "", "push to gerrit with Review labels \nex: Code-Review+1,l=Verified+1")
-	pushCmd.Flags().StringVarP(&Reviewer, "reviewer", "r", "", "push to gerrit with reviewer")
-	pushCmd.Flags().StringVarP(&Carbon, "carbon ", "c", "", "push to gerrit with cc")
+	pushCmd.Flags().StringVarP(&Reviewer, "reviewer", "r", "", "push to gerrit with reviewer, Multiple  separated by commas")
+	pushCmd.Flags().StringVarP(&Carbon, "carbon ", "c", "", "push to gerrit with cc, Multiple  separated by commas")
 
 	pushCmd.Flags().BoolVarP(&RefsHeads, "heads", "H", false, "push to gerrit refs/heads/ directly")
 
