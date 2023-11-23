@@ -32,21 +32,24 @@ Usage:
 
 Flags:
   -b, --branch string         what remote branch want to push
-  -t, --topic string          push to gerrit with topic
-  -g, --hashtags string       push to gerrit with hashtags
-  -m, --message string        push to gerrit with Patch Set Description
-  -l, --label string          push to gerrit with Review labels 
-                              ex: Code-Review+1,l=Verified+1
-  -H, --heads                 push to gerrit refs/heads/ directly
-  -E, --edit                  push to gerrit Change Edits, 
+  -c, --carbon  string        push to gerrit with cc, Multiple  separated by commas
+  -E, --edit                  push to gerrit Change Edits,
                               edit is not supported for new changes
-  -C, --publish-comments      push to gerrit with Publish Draft Comments
-      --no-publish-comments   push to gerrit with No Publish Draft Comments
-  -P, --private               push to a private change
-      --remove-private        push to remove the private flag 
-  -W, --wip                   push a Work-In-Progress change
-      --remove-wip            push to remove the wip flag
+  -g, --hashtags string       push to gerrit with hashtags
+  -H, --heads                 push to gerrit refs/heads/ directly
   -h, --help                  help for push
+  -l, --label string          push to gerrit with Review labels
+                              ex: Code-Review+1,l=Verified+1
+  -m, --message string        push to gerrit with Patch Set Description
+      --no-publish-comments   push to gerrit with No Publish Draft Comments
+  -p, --private               push to a private change
+      --publish-comments      push to gerrit with Publish Draft Comments
+  -P, --remove-private        push to remove the private flag
+  -W, --remove-wip            push to remove the wip flag
+  -r, --reviewer string       push to gerrit with reviewer, Multiple  separated by commas
+  -t, --topic string          push to gerrit with topic
+  -w, --wip                   push a Work-In-Progress change
+
 
 
 ```
