@@ -392,14 +392,57 @@ func push(cmd *cobra.Command, args []string) {
 
 	fmt.Println("will run: git push", pushString)
 	output, err := CaptureCommand("git", "push", pushArgs...)
-	if err != nil {
-		ParseOutput(output)
-		Error(cmd, args, err)
+	if err == nil {
+		return
 	}
-}
 
-func ParseOutput(output string) {
-	//todo
+	// unpacker error will retry
+	if strings.Contains(output, "unpacker error") && strings.Contains(output, "remote rejected") {
+		fmt.Println("will repair git mirror")
+		bashArgs := `#!/bin/bash
+			set -e
+			set -o pipefail
+
+			# (n/a (unpacker error) push时候出现这个错误 临时解决办法
+			function main() {
+				local L_GIT_DIR=$(git rev-parse --absolute-git-dir)
+				local L_ALT_FILE=${L_GIT_DIR}/objects/info/alternates
+
+				if [[ ! -f "${L_ALT_FILE}" ]]; then
+					echo "alternates 文件不存在，不需要执行这个修复脚本的"
+					return 0
+				fi
+
+				local L_OBJ_DIR=$(cat ${L_ALT_FILE})
+				(
+				cd "${L_OBJ_DIR}" || exit 1
+				cd .. || exit 1
+				# 删除掉 其他文件，只保留 config 这个文件，
+				rm -rf branches  description  FETCH_HEAD  HEAD  hooks  info  objects  packed-refs  refs
+				# 删除之后重新 init 为裸仓库
+				git init --bare .
+				# 然后执行 git fetch 动作
+				git fetch --all
+				echo "修复仓库 ${L_GIT_DIR} 完毕，请重新执行 push 操作，如果还有问题，请联系SCM处理！"
+				)
+			}
+			main "$@"
+		`
+		_, err := CaptureCommand("bash", "-c", bashArgs)
+		if err != nil {
+			// 修复脚本执行失败的情况
+			fmt.Println("修复脚本执行失败的情况,请联系SCM处理！")
+			Error(cmd, args, err)
+		}
+	} // end 处理 unpacker error
+
+	fmt.Println("will retry to run: git push", pushString)
+	_, err1 := CaptureCommand("git", "push", pushArgs...)
+	if err1 == nil {
+		return
+	}
+
+	Error(cmd, args, err)
 }
 
 func init() {
