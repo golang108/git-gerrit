@@ -385,19 +385,21 @@ func push(cmd *cobra.Command, args []string) {
 	}
 
 	yes, err := prompt.Run()
-
 	if err != nil {
 		Error(cmd, args, err)
 	}
-	fmt.Printf("You choose %q\n", yes)
+	fmt.Printf("You choose [%q]\n", yes)
+	yes = strings.ToLower(yes)
+	if yes != "y" {
+		fmt.Println("exit now, if you want to execute git push, please input y.")
+		return
+	}
 
-	if yes == "y" || yes == "Y" {
-		fmt.Println("will run: git push", pushString)
-		output, err := CaptureCommand("git", "push", pushArgs...)
-		if err != nil {
-			ParseOutput(output)
-			Error(cmd, args, err)
-		}
+	fmt.Println("will run: git push", pushString)
+	output, err := CaptureCommand("git", "push", pushArgs...)
+	if err != nil {
+		ParseOutput(output)
+		Error(cmd, args, err)
 	}
 }
 
