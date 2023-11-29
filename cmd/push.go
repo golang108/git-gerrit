@@ -386,13 +386,8 @@ func push(cmd *cobra.Command, args []string) {
 
 	yes, err := prompt.Run()
 	if err != nil {
+		fmt.Printf("exit now, your choice %q is invalid. please input y.\n", yes)
 		Error(cmd, args, err)
-	}
-	fmt.Printf("You choose [%q]\n", yes)
-	yes = strings.ToLower(yes)
-	if yes != "y" {
-		fmt.Println("exit now, if you want to execute git push, please input y.")
-		return
 	}
 
 	fmt.Println("will run: git push", pushString)
