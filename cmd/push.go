@@ -463,18 +463,17 @@ func push(cmd *cobra.Command, args []string) {
 			}
 			main "$@"
 		`
-		_, err := CaptureCommand("bash", "-c", bashArgs)
-		if err != nil {
+		_, errbash := CaptureCommand("bash", "-c", bashArgs)
+		if errbash != nil {
 			// 修复脚本执行失败的情况
-			Error("修复脚本执行失败的情况,请联系SCM处理！", err)
+			Error("修复脚本执行失败的情况,请联系SCM处理！", errbash)
+		}
+		fmt.Println("will retry to run: git push", pushString)
+		_, err1 := CaptureCommand("git", "push", pushArgs...)
+		if err1 == nil {
+			return
 		}
 	} // end 处理 unpacker error
-
-	fmt.Println("will retry to run: git push", pushString)
-	_, err1 := CaptureCommand("git", "push", pushArgs...)
-	if err1 == nil {
-		return
-	}
 
 	Error("git push fail.", err)
 }
