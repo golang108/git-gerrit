@@ -51,11 +51,11 @@ type RemoteOption struct {
 func getRemote(cmd *cobra.Command, args []string) RemoteOption {
 	output, err := ExecuteCommand("git", "remote", "-v")
 	if err != nil {
-		Error(cmd, args, err)
+		Error("run git remote fail.", err)
 	}
 	if output == "" {
 		err = errors.New("no remote")
-		Error(cmd, args, err)
+		Error("run git remote fail.", err)
 	}
 	//解析所有的remote，然后保存成 RemoteOption 切片
 	remotes := strings.Split(output, "\n")
@@ -91,14 +91,14 @@ func getRemote(cmd *cobra.Command, args []string) RemoteOption {
 		chooseIndex, _, err := prompt.Run()
 
 		if err != nil {
-			Error(cmd, args, err)
+			Error("select remote fail.", err)
 		}
 		remoteOption = remote_options[chooseIndex]
 	} else if remote_options_len == 1 {
 		remoteOption = remote_options[0]
 	} else {
 		err = errors.New("没有任何 remote 名称, 请使用git remote add 添加")
-		Error(cmd, args, err)
+		Error("select remote fail.", err)
 	}
 	return remoteOption
 }
@@ -118,11 +118,11 @@ func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) Bra
 	}
 	output, err := ExecuteCommand("git", "branch", "-a")
 	if err != nil {
-		Error(cmd, args, err)
+		Error("run git branch fail.", err)
 	}
 	if output == "" {
 		err = errors.New("no branch")
-		Error(cmd, args, err)
+		Error("run git branch fail.", err)
 	}
 	//解析所有的 branch，然后保存成 BranchOption 切片
 	branchs := strings.Split(output, "\n")
@@ -163,14 +163,14 @@ func getBranch(cmd *cobra.Command, args []string, remoteOption RemoteOption) Bra
 		chooseIndex, _, err := prompt.Run()
 
 		if err != nil {
-			Error(cmd, args, err)
+			Error("select branch fail.", err)
 		}
 		branchOption = branch_options[chooseIndex]
 	} else if branch_options_len == 1 {
 		branchOption = branch_options[0]
 	} else {
-		err = errors.New("没有任何分支名称, 请使用-b选项指定分支名")
-		Error(cmd, args, err)
+		err = errors.New("没有任何 branch 名称, 请使用-b选项指定分支名")
+		Error("select branch fail.", err)
 	}
 	return branchOption
 }
@@ -387,7 +387,7 @@ func push(cmd *cobra.Command, args []string) {
 	yes, err := prompt.Run()
 	if err != nil {
 		fmt.Printf("exit now, your choice %q is invalid. please input y.\n", yes)
-		Error(cmd, args, err)
+		Error("your choice is invalid", err)
 	}
 
 	//fmt.Println("git push", pushString)
@@ -427,10 +427,9 @@ func push(cmd *cobra.Command, args []string) {
 		_, errbash := CaptureCommand("bash", "-c", bashArgs)
 		if errbash != nil {
 			// 修复脚本执行失败的情况
-			fmt.Println("修复脚本执行失败的情况,请联系SCM处理！")
-			Error(cmd, args, errbash)
+			Error("修复脚本执行失败的情况,请联系SCM处理！", errbash)
 		}
-		Error(cmd, args, err)
+		Error("git push fail.", err)
 	} // end 处理  missing Change-Id in message footer
 
 	// unpacker error will retry
@@ -468,8 +467,7 @@ func push(cmd *cobra.Command, args []string) {
 		_, err := CaptureCommand("bash", "-c", bashArgs)
 		if err != nil {
 			// 修复脚本执行失败的情况
-			fmt.Println("修复脚本执行失败的情况,请联系SCM处理！")
-			Error(cmd, args, err)
+			Error("修复脚本执行失败的情况,请联系SCM处理！", err)
 		}
 	} // end 处理 unpacker error
 
@@ -479,7 +477,7 @@ func push(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	Error(cmd, args, err)
+	Error("git push fail.", err)
 }
 
 func init() {
