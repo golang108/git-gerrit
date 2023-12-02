@@ -390,10 +390,9 @@ func push(cmd *cobra.Command, args []string) {
 		Error("your choice is invalid", err)
 	}
 
-	//fmt.Println("git push", pushString)
 	output, err := CaptureCommand("git", "push", pushArgs...)
 	if err == nil {
-		fmt.Println("\033[1;32mSuccess \033[0m")
+		fmt.Println("Success")
 		return
 	}
 
