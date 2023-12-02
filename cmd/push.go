@@ -393,8 +393,45 @@ func push(cmd *cobra.Command, args []string) {
 	fmt.Println("will run: git push", pushString)
 	output, err := CaptureCommand("git", "push", pushArgs...)
 	if err == nil {
+		fmt.Println("git push success...")
 		return
 	}
+
+	// 处理  missing Change-Id in message footer
+	if strings.Contains(output, "missing Change-Id in message footer") && strings.Contains(output, "remote rejected") {
+		fmt.Println("will repair missing Change-Id")
+		bashArgs := `#!/bin/bash
+			set -e
+			set -o pipefail
+
+			# missing Change-Id in message footer 临时解决办法
+			function main() {
+				local L_GIT_DIR=$(git rev-parse --absolute-git-dir)
+				local L_HOOKS_DIR=${L_GIT_DIR}/hooks
+
+				if [[ ! -d "${L_HOOKS_DIR}" ]]; then
+					mkdir -p "${L_HOOKS_DIR}"
+				fi
+				(
+				cd "${L_HOOKS_DIR}" || exit 1
+				
+				curl -Lo commit-msg https://snc-gerrit.zeekrlife.com/tools/hooks/commit-msg
+				chmod +x commit-msg
+
+				echo "已经帮你下载了commit-msg文件，请尝试执行  git commit --amend 然后再重新执行 git gerrit 进行push操作"
+				)
+				
+			}
+			main "$@"
+		`
+		_, errbash := CaptureCommand("bash", "-c", bashArgs)
+		if errbash != nil {
+			// 修复脚本执行失败的情况
+			fmt.Println("修复脚本执行失败的情况,请联系SCM处理！")
+			Error(cmd, args, errbash)
+		}
+		Error(cmd, args, err)
+	} // end 处理  missing Change-Id in message footer
 
 	// unpacker error will retry
 	if strings.Contains(output, "unpacker error") && strings.Contains(output, "remote rejected") {
