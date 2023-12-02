@@ -393,7 +393,7 @@ func push(cmd *cobra.Command, args []string) {
 	//fmt.Println("git push", pushString)
 	output, err := CaptureCommand("git", "push", pushArgs...)
 	if err == nil {
-		fmt.Println("\033[1;32m Success \033[0m")
+		fmt.Println("\033[1;32mSuccess \033[0m")
 		return
 	}
 
