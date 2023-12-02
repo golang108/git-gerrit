@@ -9,8 +9,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-
-	"github.com/spf13/cobra"
 )
 
 func ExecuteCommand(name string, subname string, args ...string) (string, error) {
@@ -39,7 +37,7 @@ func CaptureCommand(name string, subname string, args ...string) (string, error)
 	return string(stdBuffer.Bytes()), err
 }
 
-func Error(cmd *cobra.Command, args []string, err error) {
-	fmt.Printf("execute %s args:%v error:%v\n", cmd.Name(), args, err)
+func Error(msg string, err error) {
+	fmt.Printf("%v %v\n", msg, err)
 	os.Exit(1)
 }
