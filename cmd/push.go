@@ -378,7 +378,7 @@ func push(cmd *cobra.Command, args []string) {
 		pushString = fmt.Sprintf("%s %s", remoteOption.Name, refsPattern)
 	} // end if else
 
-	label := fmt.Sprintf("will run: [git push %s]  Are you sure to execute this", pushString)
+	label := fmt.Sprintf("will run: [git push %s] \033[1;31mAre you sure to execute this\033[0m", pushString)
 	prompt := promptui.Prompt{
 		Label:     label,
 		IsConfirm: true,
@@ -390,10 +390,10 @@ func push(cmd *cobra.Command, args []string) {
 		Error(cmd, args, err)
 	}
 
-	fmt.Println("will run: git push", pushString)
+	//fmt.Println("git push", pushString)
 	output, err := CaptureCommand("git", "push", pushArgs...)
 	if err == nil {
-		fmt.Println("git push success...")
+		fmt.Println("\033[1;32m Success \033[0m")
 		return
 	}
 
